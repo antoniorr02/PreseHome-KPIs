@@ -1,0 +1,9 @@
+{
+  "project": "online-store",
+  "coverage": 82.4,
+  "bugs": 3,
+  "vulnerabilities": 1,
+  "code_smells": 41,
+  "duplicated_lines_density": 2.3,
+  "technical_debt": "3h"
+}

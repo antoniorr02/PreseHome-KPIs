@@ -16,7 +16,7 @@ def extract_metrics():
 
     params = {
         "component": PROJECT_KEY,
-        "metricKeys": "complexity"
+        "metricKeys": "bugs"
     }
 
     headers = {
@@ -28,8 +28,28 @@ def extract_metrics():
 
     data = response.json()
 
-    print(data)
+    metrics = {}
+
+    for measure in data["component"]["measures"]:
+        metrics[measure["metric"]] = measure["value"]
+
+    expected_metrics = ["bugs"]
+
+    clean_metrics = {}
+
+    for metric in expected_metrics:
+        value = metrics.get(metric, 0)
+        clean_metrics[metric] = float(value)
+
+    result = {
+        "project": "PreseHome",
+        "metrics": {k: int(v) for k, v in clean_metrics.items()},
+        "timestamp": datetime.now(UTC).isoformat()
+    }
+
+    return result
 
 if __name__ == "__main__":
 
     metrics = extract_metrics()
+    print(metrics)

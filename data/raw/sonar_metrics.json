@@ -1,0 +1,10 @@
+{
+    "project": "PreseHome",
+    "metrics": {
+        "bugs": 28,
+        "vulnerabilities": 4,
+        "code_smells": 421,
+        "coverage": 0
+    },
+    "timestamp": "2026-03-15T12:29:05.453497+00:00"
+}

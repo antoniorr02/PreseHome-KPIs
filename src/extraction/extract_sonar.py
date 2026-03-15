@@ -16,7 +16,7 @@ def extract_metrics():
 
     params = {
         "component": PROJECT_KEY,
-        "metricKeys": "bugs"
+        "metricKeys": "bugs,vulnerabilities,code_smells,coverage"
     }
 
     headers = {
@@ -33,7 +33,7 @@ def extract_metrics():
     for measure in data["component"]["measures"]:
         metrics[measure["metric"]] = measure["value"]
 
-    expected_metrics = ["bugs"]
+    expected_metrics = ["bugs", "vulnerabilities", "code_smells", "coverage"]
 
     clean_metrics = {}
 

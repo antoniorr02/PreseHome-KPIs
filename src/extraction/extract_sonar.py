@@ -49,7 +49,17 @@ def extract_metrics():
 
     return result
 
+
+def save_raw_dataset(metrics):
+
+    with open("data/raw/sonar_metrics.json", "w") as f:
+        json.dump(metrics, f, indent=4)
+
+
 if __name__ == "__main__":
 
     metrics = extract_metrics()
     print(metrics)
+    save_raw_dataset(metrics)
+
+    print("Metrics extracted successfully.")

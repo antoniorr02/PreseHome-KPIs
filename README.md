@@ -130,6 +130,20 @@ dashboards/
 pipelines/
     jenkins/         # automation pipelines
 
+## Enviroment installation for Linux
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+For extract metrics from SonarCloud:
+
+```bash
+python src/extraction/extract_sonar.py
+```
+
 ## Definition of Done
 
 A user story is considered completed when:

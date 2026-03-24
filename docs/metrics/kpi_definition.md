@@ -1,11 +1,22 @@
-# Code Quality Score
+# KPI Definition — Engineering Metrics Platform
 
-## Formula
+## Purpose
+Calculate a single weighted score (0–10) to evaluate overall application quality.
 
-Quality Score =
-    0.4 * coverage +
-    0.2 * reliability +
-    0.2 * maintainability +
-    0.2 * security
+## Input Metrics
+- Bugs
+- Vulnerabilities
+- Code Smells
+- Coverage
 
-Source: SonarCloud metrics
+## Weighting
+- Bugs: 0.3
+- Vulnerabilities: 0.3
+- Code Smells: 0.2
+- Coverage: 0.2
+
+## Calculation Formula
+1. Normalize each metric to 0-10 scale
+2. Apply weight to each metric
+3. Sum all weighted metrics to obtain KPI (0-10)
+4. Store KPI in processed dataset

@@ -1,12 +1,7 @@
 
-METRICS = ["bugs", "vulnerabilities", "code_smells", "coverage"]
+from kpi_model import load_weights
 
-DEFAULT_WEIGHTS = {
-    "bugs": 0.3,
-    "vulnerabilities": 0.3,
-    "code_smells": 0.2,
-    "coverage": 0.2
-}
+weights = load_weights()
 
 def formula_description():
     """

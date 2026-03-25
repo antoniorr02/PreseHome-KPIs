@@ -1,0 +1,8 @@
+{
+  "weights": {
+    "bugs": 0.3,
+    "vulnerabilities": 0.3,
+    "code_smells": 0.2,
+    "coverage": 0.2
+  }
+}

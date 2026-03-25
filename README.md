@@ -35,8 +35,7 @@ The pipeline follows a typical data engineering flow:
 
 
 
-Automation of the pipeline is implemented using CI/CD workflows,
-combining Jenkins pipelines and scheduled data processing scripts.
+Automation of the pipeline is implemented using CI/CD workflows with scheduled data processing scripts.
 
 ## Technical vs Executive Dashboards
 
@@ -126,9 +125,6 @@ datasets/
 dashboards/
     grafana/         # technical observability
     powerbi/         # executive reporting
-
-pipelines/
-    jenkins/         # automation pipelines
 
 ## Enviroment installation for Linux
 

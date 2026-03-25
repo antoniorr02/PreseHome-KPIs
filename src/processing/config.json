@@ -1,0 +1,19 @@
+{
+  "weights": {
+    "bugs": 0.3,
+    "vulnerabilities": 0.3,
+    "code_smells": 0.2,
+    "coverage": 0.2
+  },
+  "normalization_caps": {
+    "bugs": 100,
+    "vulnerabilities": 50,
+    "code_smells": 500
+  },
+  "missing_value_defaults": {
+    "bugs": 0,
+    "vulnerabilities": 0,
+    "code_smells": 0,
+    "coverage": 0
+  }
+}

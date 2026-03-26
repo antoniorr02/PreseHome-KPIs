@@ -96,17 +96,28 @@ This dual-layer reporting model helps ensure that both technical and business st
                 |  Dataset Layer     |
                 +---------+----------+
                           |
-            +-------------+-------------+
-            |                           |
-            v                           v
-      +-----------+              +-------------+
-      | InfluxDB  |              | JSON Dataset|
-      +-----+-----+              +------+------+
-            |                           |
-            v                           v
-        +--------+                 +-----------+
-        |Grafana |                 | Power BI  |
-        +--------+                 +-----------+
+          +---------------+---------------+
+          |               |               |
+          v               v               v
+    +-----------+   +-----------+   +-----------+
+    | InfluxDB  |   |  OneDrive |   |  GitHub   |
+    |  (Cloud)  |   |  (Excel)  |   |  (JSON)   |
+    +-----+-----+   +-----+-----+   +-----+-----+
+          |               |               |
+          v               v               v
+      +--------+    +-----------+    +----------+
+      | Grafana|    |  Power BI |    |  Backup  |
+      |(Tech   |    | (Executive|    | /Migrate |
+      |Dashboard)   | Dashboard)|    +----------+
+      +--------+    +-----------+
+          
+          ^
+          |
+    +------------------+
+    | GitHub Actions   |
+    | (cron diario)    |
+    | automatiza todo  |
+    +------------------+
 
 ## Repository Structure
 
@@ -138,6 +149,11 @@ For extract metrics from SonarCloud:
 
 ```bash
 python src/extraction/extract_sonar.py
+```
+
+For calculate KPIs:
+```bash
+python src/processing/calculate_kpis.py
 ```
 
 ## Definition of Done

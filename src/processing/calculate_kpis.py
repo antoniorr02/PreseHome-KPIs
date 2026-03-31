@@ -7,6 +7,7 @@ from openpyxl.utils import get_column_letter
 
 from kpi_model import load_weights
 from normalize_metrics import normalize_metrics
+from store_kpi_history import store_kpi_history
 
 weights = load_weights()
 
@@ -139,6 +140,9 @@ def formula_description():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     save_csv(record,  os.path.join(OUTPUT_DIR, "kpi_results.csv"))
     save_xlsx(record, os.path.join(OUTPUT_DIR, "kpi_results.xlsx"))
+
+    history = store_kpi_history(record)
+    print(f"KPI history updated → {len(history)} record(s) stored in datasets/kpi_history.json")
 
 
 if __name__ == "__main__":

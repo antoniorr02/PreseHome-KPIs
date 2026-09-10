@@ -9,7 +9,7 @@ import sys
 import os as _os
 sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), "..", "export"))
 
-from kpi_model import load_weights
+from kpi_model import load_weights, load_normalization_config
 from normalize_metrics import normalize_metrics
 from store_kpi_history import store_kpi_history
 from write_influx import write_kpi_to_influx
@@ -134,7 +134,8 @@ def formula_description():
 
     raw_metrics = data["metrics"]
 
-    normalized = normalize_metrics(raw_metrics)
+    caps, defaults = load_normalization_config()
+    normalized = normalize_metrics(raw_metrics, caps=caps, defaults=defaults)
     print("Normalized metrics:", normalized)
 
     kpi_score = calculate_kpi(normalized, weights)

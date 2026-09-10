@@ -139,7 +139,7 @@ if __name__ == "__main__":
     )
 
     try:
-        from kpi_model import load_weights
+        from kpi_model import load_weights, load_normalization_config
         from normalize_metrics import normalize_metrics
         from calculate_kpis import build_dataset, calculate_kpi
     except ImportError as e:
@@ -160,7 +160,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     weights     = load_weights()
-    normalized  = normalize_metrics(data["metrics"])
+    caps, defaults = load_normalization_config()
+    normalized  = normalize_metrics(data["metrics"], caps=caps, defaults=defaults)
     kpi_score   = calculate_kpi(normalized, weights)
     record      = build_dataset(data, normalized, kpi_score, weights)
 

@@ -260,12 +260,13 @@ if __name__ == "__main__":
         logger.error("SonarQube metrics file not found at '%s'.", sonar_path)
         sys.exit(1)
 
-    from kpi_model import load_weights
+    from kpi_model import load_weights, load_normalization_config
     from normalize_metrics import normalize_metrics
     from calculate_kpis import build_dataset, calculate_kpi
 
     weights    = load_weights()
-    normalized = normalize_metrics(data["metrics"])
+    caps, defaults = load_normalization_config()
+    normalized = normalize_metrics(data["metrics"], caps=caps, defaults=defaults)
     kpi_score  = calculate_kpi(normalized, weights)
     record     = build_dataset(data, normalized, kpi_score, weights)
 

@@ -138,16 +138,14 @@ if __name__ == "__main__":
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
 
-    sys.path.insert(0, os.path.join(_PROJECT_ROOT, "src", "processing"))
-
     try:
-        from kpi_model import load_weights, load_normalization_config
-        from normalize_metrics import normalize_metrics
-        from calculate_kpis import build_dataset, calculate_kpi
+        from src.processing.kpi_model import load_weights, load_normalization_config
+        from src.processing.normalize_metrics import normalize_metrics
+        from src.processing.calculate_kpis import build_dataset, calculate_kpi
     except ImportError as e:
         logger.error(
             "Could not import project modules: %s\n"
-            "Ensure src/processing/ exists relative to the project root.",
+            "Run 'pip install -e .' from the project root first.",
             e,
         )
         sys.exit(1)

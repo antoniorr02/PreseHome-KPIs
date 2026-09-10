@@ -31,7 +31,7 @@ timestamp : ISO-8601 string taken from the record's "timestamp" field
 
 Public API
 ----------
-    from write_influx import write_kpi_to_influx
+    from src.export.write_influx import write_kpi_to_influx
 
     write_kpi_to_influx(record)           # uses env-var config
     write_kpi_to_influx(record, retries=5, retry_delay=2.0)
@@ -46,12 +46,8 @@ import time
 from datetime import datetime, timezone
 from typing import Any
 
-# Ensure src/export is on the path so influx_client is importable whether
-# this module is run directly or imported from src/processing.
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
 try:
-    from influx_client import (
+    from src.export.influx_client import (
         get_influx_client,
         load_influx_config,
         InfluxConfigError,
@@ -250,7 +246,6 @@ if __name__ == "__main__":
 
     _HERE        = os.path.dirname(os.path.abspath(__file__))
     _PROJECT_ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))
-    sys.path.insert(0, os.path.join(_PROJECT_ROOT, "src", "processing"))
 
     sonar_path = os.path.join(_PROJECT_ROOT, "data", "raw", "sonar_metrics.json")
     try:
@@ -260,9 +255,9 @@ if __name__ == "__main__":
         logger.error("SonarQube metrics file not found at '%s'.", sonar_path)
         sys.exit(1)
 
-    from kpi_model import load_weights, load_normalization_config
-    from normalize_metrics import normalize_metrics
-    from calculate_kpis import build_dataset, calculate_kpi
+    from src.processing.kpi_model import load_weights, load_normalization_config
+    from src.processing.normalize_metrics import normalize_metrics
+    from src.processing.calculate_kpis import build_dataset, calculate_kpi
 
     weights    = load_weights()
     caps, defaults = load_normalization_config()

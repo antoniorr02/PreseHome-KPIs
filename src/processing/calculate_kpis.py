@@ -5,14 +5,10 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-import sys
-import os as _os
-sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), "..", "export"))
-
-from kpi_model import load_weights, load_normalization_config
-from normalize_metrics import normalize_metrics
-from store_kpi_history import store_kpi_history
-from write_influx import write_kpi_to_influx
+from src.processing.kpi_model import load_weights, load_normalization_config
+from src.processing.normalize_metrics import normalize_metrics
+from src.export.store_kpi_history import store_kpi_history
+from src.export.write_influx import write_kpi_to_influx
 
 weights = load_weights()
 

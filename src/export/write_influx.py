@@ -172,10 +172,7 @@ def write_kpi_to_influx(
 
     point = _build_point(record)
 
-    try:
-        client, write_api = get_influx_client()
-    except InfluxConfigError:
-        raise
+    client, write_api = get_influx_client()
 
     config = load_influx_config()
 

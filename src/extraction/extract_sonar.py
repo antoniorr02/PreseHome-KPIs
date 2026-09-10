@@ -9,6 +9,7 @@ load_dotenv()
 SONAR_URL = os.getenv("SONAR_URL")
 SONAR_TOKEN = os.getenv("SONAR_TOKEN")
 PROJECT_KEY = os.getenv("SONAR_PROJECT_KEY")
+PROJECT_NAME = os.getenv("PROJECT_NAME")
 
 def extract_metrics():
 
@@ -44,7 +45,7 @@ def extract_metrics():
         clean_metrics[metric] = float(value)
 
     result = {
-        "project": "PreseHome",
+        "project": PROJECT_NAME,
         "metrics": {
             k: (int(v) if k in INT_METRICS else v)
             for k, v in clean_metrics.items()

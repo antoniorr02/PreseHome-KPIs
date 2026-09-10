@@ -138,6 +138,8 @@ if __name__ == "__main__":
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
 
+    sys.path.insert(0, os.path.join(_PROJECT_ROOT, "src", "processing"))
+
     try:
         from kpi_model import load_weights, load_normalization_config
         from normalize_metrics import normalize_metrics
@@ -145,8 +147,7 @@ if __name__ == "__main__":
     except ImportError as e:
         logger.error(
             "Could not import project modules: %s\n"
-            "Run this script from the src/processing/ directory or set "
-            "PYTHONPATH accordingly.",
+            "Ensure src/processing/ exists relative to the project root.",
             e,
         )
         sys.exit(1)

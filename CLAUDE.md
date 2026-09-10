@@ -30,7 +30,7 @@ python src/processing/calculate_kpis.py    # normalizes, weights, scores, and fa
 
 `calculate_kpis.py` is the single orchestrating entry point for stage 2. Running it does all of the following in one pass: normalize raw metrics → compute the weighted KPI → write `data/processed/kpi_results.csv` and `.xlsx` → append a record to `datasets/kpi_history.json` → write a point to InfluxDB (a write failure here is caught and only logged as a warning — the rest of the pipeline still succeeds).
 
-Individual modules (`src/export/store_kpi_history.py`, `src/export/write_influx.py`, `src/processing/normalize_metrics.py`, `src/processing/kpi_model.py`) each have a `__main__` block for standalone testing, but they expect to be run with `src/processing` on `PYTHONPATH` (see Import wiring below) — running them directly from elsewhere will fail on import unless that path is set up first.
+Individual modules (`src/export/store_kpi_history.py`, `src/export/write_influx.py`, `src/processing/normalize_metrics.py`, `src/processing/kpi_model.py`) each have a `__main__` block for standalone testing. `store_kpi_history.py` and `write_influx.py` insert `src/processing` onto `sys.path` themselves at the top of their `__main__` block (see Import wiring below), so both can be run directly from the repo root without any manual `PYTHONPATH`/`cd` setup.
 
 ## Architecture
 
@@ -59,4 +59,4 @@ Individual modules (`src/export/store_kpi_history.py`, `src/export/write_influx.
 
 ## Current work
 
-The repo is mid-refactor (branch `feature/us04-store-kpi-history`, tracking backlog item US04): `influx_client.py` and `store_kpi_history.py` are being moved from `src/processing/` to `src/export/`, and `write_influx.py` is new. When touching these files, double-check the `__main__` blocks and `sys.path` insertions still match each file's actual location — several of them still assume the pre-move layout (e.g. `store_kpi_history.py`'s `__main__` imports `kpi_model`/`normalize_metrics`/`calculate_kpis` with no path insertion, so it only works if invoked from `src/processing/`).
+The repo is mid-refactor (branch `feature/us04-store-kpi-history`, tracking backlog item US04): `influx_client.py` and `store_kpi_history.py` moved from `src/processing/` to `src/export/`, and `write_influx.py` is new. That move is complete — every `__main__` block now inserts `src/processing` onto `sys.path` before importing `kpi_model`/`normalize_metrics`/`calculate_kpis`, matching each file's actual location. When touching these files, still double-check the `__main__` blocks and `sys.path` insertions match each file's actual location if you move or rename anything further.

@@ -15,10 +15,17 @@ weights = load_weights()
 OUTPUT_DIR = "data/processed"
 
 
+class InvalidWeightsError(ValueError):
+    """Raised when configured KPI weights don't sum to ~1.0."""
+
+
 def calculate_kpi(normalized: dict, weights: dict) -> float:
     total_weight = sum(weights.values())
     if not (0.99 <= total_weight <= 1.01):
-        print(f"WARNING: Weights sum to {total_weight:.4f}, expected 1.0")
+        raise InvalidWeightsError(
+            f"Weights sum to {total_weight:.4f}, expected ~1.0. "
+            "Check src/processing/config.json's 'weights' section."
+        )
 
     weighted_sum = sum(
         normalized[metric] * weight

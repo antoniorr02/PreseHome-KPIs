@@ -5,9 +5,14 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
+import sys
+import os as _os
+sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), "..", "export"))
+
 from kpi_model import load_weights
 from normalize_metrics import normalize_metrics
 from store_kpi_history import store_kpi_history
+from write_influx import write_kpi_to_influx
 
 weights = load_weights()
 
@@ -143,6 +148,12 @@ def formula_description():
 
     history = store_kpi_history(record)
     print(f"KPI history updated → {len(history)} record(s) stored in datasets/kpi_history.json")
+
+    try:
+        write_kpi_to_influx(record)
+        print("KPI point written to InfluxDB successfully.")
+    except Exception as exc:
+        print(f"WARNING: Could not write to InfluxDB: {exc}")
 
 
 if __name__ == "__main__":

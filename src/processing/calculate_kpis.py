@@ -10,8 +10,6 @@ from src.processing.normalize_metrics import normalize_metrics
 from src.export.store_kpi_history import store_kpi_history
 from src.export.write_influx import write_kpi_to_influx
 
-weights = load_weights()
-
 OUTPUT_DIR = "data/processed"
 
 
@@ -130,6 +128,7 @@ def save_xlsx(record: dict, path: str) -> None:
 
 
 def formula_description():
+    weights = load_weights()
     print("Loaded KPI weights:", weights)
 
     with open("data/raw/sonar_metrics.json", "r") as f:

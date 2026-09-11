@@ -9,6 +9,7 @@ load_dotenv()
 SONAR_URL = os.getenv("SONAR_URL")
 SONAR_TOKEN = os.getenv("SONAR_TOKEN")
 PROJECT_KEY = os.getenv("SONAR_PROJECT_KEY")
+PROJECT_NAME = os.getenv("PROJECT_NAME")
 
 def extract_metrics():
 
@@ -34,6 +35,8 @@ def extract_metrics():
         metrics[measure["metric"]] = measure["value"]
 
     expected_metrics = ["bugs", "vulnerabilities", "code_smells", "coverage"]
+    # coverage is a percentage and stays a float; the others are whole-number counts
+    INT_METRICS = {"bugs", "vulnerabilities", "code_smells"}
 
     clean_metrics = {}
 
@@ -42,8 +45,11 @@ def extract_metrics():
         clean_metrics[metric] = float(value)
 
     result = {
-        "project": "PreseHome",
-        "metrics": {k: int(v) for k, v in clean_metrics.items()},
+        "project": PROJECT_NAME,
+        "metrics": {
+            k: (int(v) if k in INT_METRICS else v)
+            for k, v in clean_metrics.items()
+        },
         "timestamp": datetime.now(UTC).isoformat()
     }
 

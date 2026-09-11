@@ -5,18 +5,25 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-from kpi_model import load_weights
-from normalize_metrics import normalize_metrics
-
-weights = load_weights()
+from src.processing.kpi_model import load_weights, load_normalization_config
+from src.processing.normalize_metrics import normalize_metrics
+from src.export.store_kpi_history import store_kpi_history
+from src.export.write_influx import write_kpi_to_influx
 
 OUTPUT_DIR = "data/processed"
+
+
+class InvalidWeightsError(ValueError):
+    """Raised when configured KPI weights don't sum to ~1.0."""
 
 
 def calculate_kpi(normalized: dict, weights: dict) -> float:
     total_weight = sum(weights.values())
     if not (0.99 <= total_weight <= 1.01):
-        print(f"WARNING: Weights sum to {total_weight:.4f}, expected 1.0")
+        raise InvalidWeightsError(
+            f"Weights sum to {total_weight:.4f}, expected ~1.0. "
+            "Check src/processing/config.json's 'weights' section."
+        )
 
     weighted_sum = sum(
         normalized[metric] * weight
@@ -121,6 +128,7 @@ def save_xlsx(record: dict, path: str) -> None:
 
 
 def formula_description():
+    weights = load_weights()
     print("Loaded KPI weights:", weights)
 
     with open("data/raw/sonar_metrics.json", "r") as f:
@@ -128,7 +136,8 @@ def formula_description():
 
     raw_metrics = data["metrics"]
 
-    normalized = normalize_metrics(raw_metrics)
+    caps, defaults = load_normalization_config()
+    normalized = normalize_metrics(raw_metrics, caps=caps, defaults=defaults)
     print("Normalized metrics:", normalized)
 
     kpi_score = calculate_kpi(normalized, weights)
@@ -137,8 +146,19 @@ def formula_description():
     record = build_dataset(data, normalized, kpi_score, weights)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    save_csv(record,  os.path.join(OUTPUT_DIR, "kpi_results.csv"))
-    save_xlsx(record, os.path.join(OUTPUT_DIR, "kpi_results.xlsx"))
+    csv_path = os.path.join(OUTPUT_DIR, "kpi_results.csv")
+    xlsx_path = os.path.join(OUTPUT_DIR, "kpi_results.xlsx")
+    save_csv(record,  csv_path)
+    save_xlsx(record, xlsx_path)
+
+    history = store_kpi_history(record)
+    print(f"KPI history updated → {len(history)} record(s) stored in datasets/kpi_history.json")
+
+    try:
+        write_kpi_to_influx(record)
+        print("KPI point written to InfluxDB successfully.")
+    except Exception as exc:
+        print(f"WARNING: Could not write to InfluxDB: {exc}")
 
 
 if __name__ == "__main__":

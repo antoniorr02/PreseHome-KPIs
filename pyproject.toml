@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "presehome-kpis"
+version = "0.1.0"
+requires-python = ">=3.9"
+
+[tool.setuptools]
+packages = ["src", "src.extraction", "src.processing", "src.export", "src.utils", "src.utils.onedrive"]

@@ -35,8 +35,7 @@ The pipeline follows a typical data engineering flow:
 
 
 
-Automation of the pipeline is implemented using CI/CD workflows,
-combining Jenkins pipelines and scheduled data processing scripts.
+Automation of the pipeline is implemented using CI/CD workflows with scheduled data processing scripts.
 
 ## Technical vs Executive Dashboards
 
@@ -97,17 +96,30 @@ This dual-layer reporting model helps ensure that both technical and business st
                 |  Dataset Layer     |
                 +---------+----------+
                           |
-            +-------------+-------------+
-            |                           |
-            v                           v
-      +-----------+              +-------------+
-      | InfluxDB  |              | JSON Dataset|
-      +-----+-----+              +------+------+
-            |                           |
-            v                           v
-        +--------+                 +-----------+
-        |Grafana |                 | Power BI  |
-        +--------+                 +-----------+
+          +---------------+---------------+
+          |               |               |
+          v               v               v
+    +-----------+   +-----------+   +-----------+
+    | InfluxDB  |   |  OneDrive |   |  GitHub   |
+    |  (Cloud)  |   |  (Excel)  |   |  (JSON)   |
+    +-----+-----+   +-----+-----+   +-----+-----+
+          |               |               |
+          v               v               v
+      +--------+    +-----------+    +----------+
+      | Grafana|    |  Power BI |    |  Backup  |
+      |(Tech   |    | (Executive|    | /Migrate |
+      |Dashboard)   | Dashboard)|    +----------+
+      +--------+    +-----------+
+          
+          ^
+          |
+    +------------------+
+    | GitHub Actions   |
+    | (cron diario)    |
+    | automatiza todo  |
+    +------------------+
+
+**Note on the OneDrive box:** the OneDrive upload integration shown above (Microsoft Graph API, OAuth device-code sign-in, retry logic — see `src/utils/onedrive/`) is fully built and working, but is currently a **standalone utility, not called automatically** by the pipeline. Power BI's live data source is instead planned to read directly from this GitHub repo (the `GitHub (JSON)` box already shown), which avoids the extra OneDrive/Azure hop entirely for automation. The OneDrive code is kept available for manual use or future adoption — see `CLAUDE.md`'s "Utilities" section for how to run it.
 
 ## Repository Structure
 
@@ -115,6 +127,8 @@ src/
     extraction/      # metric collection
     processing/      # KPI calculations
     export/          # dataset generation
+    utils/
+        onedrive/    # standalone OneDrive upload utility (not wired into the pipeline)
 
 data/
     raw/             # raw metrics from APIs
@@ -127,21 +141,24 @@ dashboards/
     grafana/         # technical observability
     powerbi/         # executive reporting
 
-pipelines/
-    jenkins/         # automation pipelines
-
 ## Enviroment installation for Linux
 
 ```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+pip install -e .
 ```
 
 For extract metrics from SonarCloud:
 
 ```bash
 python src/extraction/extract_sonar.py
+```
+
+For calculate KPIs:
+```bash
+python src/processing/calculate_kpis.py
 ```
 
 ## Definition of Done

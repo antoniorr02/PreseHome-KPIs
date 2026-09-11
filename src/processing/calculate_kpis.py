@@ -146,8 +146,10 @@ def formula_description():
     record = build_dataset(data, normalized, kpi_score, weights)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    save_csv(record,  os.path.join(OUTPUT_DIR, "kpi_results.csv"))
-    save_xlsx(record, os.path.join(OUTPUT_DIR, "kpi_results.xlsx"))
+    csv_path = os.path.join(OUTPUT_DIR, "kpi_results.csv")
+    xlsx_path = os.path.join(OUTPUT_DIR, "kpi_results.xlsx")
+    save_csv(record,  csv_path)
+    save_xlsx(record, xlsx_path)
 
     history = store_kpi_history(record)
     print(f"KPI history updated → {len(history)} record(s) stored in datasets/kpi_history.json")

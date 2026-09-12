@@ -66,6 +66,30 @@ Instead of raw metrics, they display higher-level KPIs such as:
 - Quality evolution over time
 These dashboards help stakeholders understand the overall health of the application and support strategic decisions.
 
+### Keeping the Power BI Report Up to Date
+
+The Power BI report was built (issue #38) from a one-time local file upload directly into Power BI Service — this was necessary because Power BI Desktop only runs on Windows, and this project is developed on Linux. A file uploaded this way has **no live refresh**: Power BI Service has no way to re-check a local file that's no longer connected to anything, so the report stays frozen at whatever data was in it at upload time.
+
+Until an automated, live-connected source exists, updating the report is a manual, two-step process:
+
+```bash
+# 1. Run the pipeline to generate a fresh KPI record
+python src/extraction/extract_sonar.py
+python src/processing/calculate_kpis.py
+
+# 2. Flatten the updated history into a CSV Power BI can import
+python src/utils/powerbi/export_history_csv.py
+# → writes data/processed/kpi_history_flat.csv
+```
+
+Then, in Power BI Service, re-upload that file to the **same workspace with the same filename** and choose **Replace** when prompted — this keeps the existing dataset (and the DAX measures/visuals already built on it) instead of creating a disconnected duplicate.
+
+**Where the real fix lives:** two paths exist to make this live instead of manual, and both are already partially prepared in this codebase:
+- `src/utils/onedrive/` is a fully working, documented OneDrive upload utility (issue #28) — not currently wired into the pipeline, but ready to reactivate if OneDrive becomes the chosen live source.
+- The preferred long-term path is for Power BI to read directly from this GitHub repo (the pipeline already commits `data/processed/kpi_results.csv`/`.xlsx` on every run) — tracked as a follow-up task under **US06** (GitHub Actions automation), since that's also where the "commit the run's output" step naturally belongs.
+
+Until one of those lands, the manual steps above are how this report gets refreshed.
+
 ## Architecture
 
 Separating technical metrics from executive KPIs reflects a common practice in engineering organizations:
@@ -129,6 +153,7 @@ src/
     export/          # dataset generation
     utils/
         onedrive/    # standalone OneDrive upload utility (not wired into the pipeline)
+        powerbi/     # flattens kpi_history.json to CSV for manual Power BI re-upload
 
 data/
     raw/             # raw metrics from APIs

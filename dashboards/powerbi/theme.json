@@ -1,0 +1,15 @@
+{
+  "name": "Grafana-like Dark",
+  "dataColors": ["#F2495C", "#FF9830", "#FADE2A", "#73BF69", "#5794F2"],
+  "background": "#181B1F",
+  "foreground": "#D8D9DA",
+  "tableAccent": "#5794F2",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#181B1F" } } }],
+        "border": [{ "show": false }]
+      }
+    }
+  }
+}

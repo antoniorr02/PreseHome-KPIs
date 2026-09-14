@@ -8,4 +8,4 @@ version = "0.1.0"
 requires-python = ">=3.9"
 
 [tool.setuptools]
-packages = ["src", "src.extraction", "src.processing", "src.export", "src.utils", "src.utils.onedrive"]
+packages = ["src", "src.extraction", "src.processing", "src.export", "src.utils", "src.utils.onedrive", "src.utils.powerbi"]

@@ -35,7 +35,7 @@ The pipeline follows a typical data engineering flow:
 
 
 
-Automation of the pipeline is implemented using CI/CD workflows with scheduled data processing scripts.
+Automation is implemented via GitHub Actions (`.github/workflows/main.yml`, issues #41/#42): the pipeline runs daily on a schedule (plus on-demand via a manual trigger), and its output — `data/raw/`, `data/processed/`, `datasets/kpi_history.json` — is committed back to the repo automatically after each run. Running the pipeline manually, as described under "Enviroment installation" below, is for local development and testing.
 
 ## Technical vs Executive Dashboards
 

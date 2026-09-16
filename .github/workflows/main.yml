@@ -1,0 +1,50 @@
+name: KPI Pipeline
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # daily at 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write  # required to push the output-commit step below
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    env:
+      SONAR_URL: ${{ secrets.SONAR_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+      INFLUX_URL: ${{ secrets.INFLUX_URL }}
+      INFLUX_TOKEN: ${{ secrets.INFLUX_TOKEN }}
+      INFLUX_ORG: ${{ secrets.INFLUX_ORG }}
+      INFLUX_BUCKET: ${{ secrets.INFLUX_BUCKET }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Extract SonarCloud metrics
+        run: python src/extraction/extract_sonar.py
+
+      - name: Calculate KPIs and fan out (CSV/XLSX, JSON history, InfluxDB)
+        run: python src/processing/calculate_kpis.py
+
+      - name: Commit updated KPI data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(data): update KPI pipeline output [skip ci]"
+          commit_user_name: github-actions[bot]
+          commit_user_email: github-actions[bot]@users.noreply.github.com
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          file_pattern: "data/raw/** data/processed/** datasets/kpi_history.json"

@@ -6,7 +6,7 @@ This documents the DAX model behind the executive KPI report (`dashboards/powerb
 
 ## Data model
 
-**Single table, `kpi_history`** — imported from `datasets/kpi_history.json` (flattened to CSV via `src/utils/powerbi/export_history_csv.py`; see README's "Keeping the Power BI Report Up to Date"). Relevant columns: `timestamp`, `kpi_score`, `norm_bugs`, `norm_vulnerabilities`, `norm_code_smells`, `norm_coverage`.
+**Single table, `kpi_history`** — read live from `datasets/kpi_history.json` on GitHub via Power BI Service's Web connector (GitHub REST API + PAT auth, issue #43; see README's "Keeping the Power BI Report Up to Date" for the exact URL). Relevant columns: `timestamp`, `kpi_score`, `norm_bugs`, `norm_vulnerabilities`, `norm_code_smells`, `norm_coverage`.
 
 **One disconnected table, `Metric`** — a small hand-built table with no relationship to `kpi_history`, used purely as a category axis for the breakdown chart:
 
@@ -79,4 +79,4 @@ Bound to a bar chart: Axis = `Metric[MetricName]`, Value = `[Latest Norm Score]`
 | Component breakdown | Bar chart | `Metric[MetricName]` / `[Latest Norm Score]` |
 | Score trend | Line chart | `kpi_history[timestamp]` / `[KPI Score]` |
 
-All built via Power BI Service's browser-based report editor (Modeling → New measure / New table), not Power BI Desktop — this project is developed on Linux, and Power BI Desktop is Windows-only. See README's "Keeping the Power BI Report Up to Date" for why that means this report has no live refresh yet.
+All built via Power BI Service's browser-based report editor (Modeling → New measure / New table), not Power BI Desktop — this project is developed on Linux, and Power BI Desktop is Windows-only. The `kpi_history` table itself is sourced live from GitHub (issue #43) — see README's "Keeping the Power BI Report Up to Date" for the exact Web connector URL and refresh mechanism.

@@ -7,14 +7,16 @@ file" only accepts CSV/Excel, not raw JSON.
 
 Status
 ------
-Manual step, not part of the automated pipeline. The Power BI executive
-report (issue #38) was built from a one-time local file upload with no
-live refresh capability — Power BI Service can't auto-refresh a file
-uploaded this way. See README.md's "Keeping the Power BI report up to
-date" section for the full manual refresh procedure, and CLAUDE.md's
-"Current work" section for why a live connection isn't wired up yet
-(tracked as a follow-up issue under US06 — Power BI is planned to read
-directly from this GitHub repo instead, once that's built).
+Legacy. This was the first step of Power BI's original manual refresh
+process (issue #38) — Power BI Service's "Upload a file" only accepts
+CSV/Excel, so kpi_history.json had to be flattened before every manual
+re-upload. That process is retired: Power BI now reads kpi_history.json
+live from GitHub via Power BI Service's Web connector (issue #43), no
+CSV or manual step involved. Kept as a convenience for flattening
+history locally (e.g. for inspection, or testing without waiting on a
+GitHub Actions run) — not part of the automated pipeline or the Power BI
+refresh path anymore. See README.md's "Keeping the Power BI Report Up
+to Date" for how the live refresh actually works now.
 
 Public API
 ----------

@@ -65,27 +65,17 @@ These dashboards help stakeholders understand the overall health of the applicat
 
 ### Keeping the Power BI Report Up to Date
 
-The Power BI report was built (issue #38) from a one-time local file upload directly into Power BI Service — this was necessary because Power BI Desktop only runs on Windows, and this project is developed on Linux. A file uploaded this way has **no live refresh**: Power BI Service has no way to re-check a local file that's no longer connected to anything, so the report stays frozen at whatever data was in it at upload time.
+The Power BI report refreshes automatically (issue #43) — no manual steps required. Its data source is Power BI Service's Web connector, pointed at this repo's `datasets/kpi_history.json` via the GitHub REST API:
 
-Until an automated, live-connected source exists, updating the report is a manual, two-step process:
-
-```bash
-# 1. Run the pipeline to generate a fresh KPI record
-python src/extraction/extract_sonar.py
-python src/processing/calculate_kpis.py
-
-# 2. Flatten the updated history into a CSV Power BI can import
-python src/utils/powerbi/export_history_csv.py
-# → writes data/processed/kpi_history_flat.csv
+```
+https://api.github.com/repos/antoniorr02/PreseHome-KPIs/contents/datasets/kpi_history.json?ref=main
 ```
 
-Then, in Power BI Service, re-upload that file to the **same workspace with the same filename** and choose **Replace** when prompted — this keeps the existing dataset (and the DAX measures/visuals already built on it) instead of creating a disconnected duplicate.
+authenticated with a GitHub Personal Access Token passed as an `Authorization` header credential (plus an `Accept: application/vnd.github.raw+json` header, so the API returns raw file content instead of a base64-wrapped JSON envelope).
 
-**Where the real fix lives:** two paths exist to make this live instead of manual, and both are already partially prepared in this codebase:
-- `src/utils/onedrive/` is a fully working, documented OneDrive upload utility (issue #28) — not currently wired into the pipeline, but ready to reactivate if OneDrive becomes the chosen live source.
-- The preferred long-term path is for Power BI to read directly from this GitHub repo (the pipeline already commits `data/processed/kpi_results.csv`/`.xlsx` on every run) — tracked as a follow-up task under **US06** (GitHub Actions automation), since that's also where the "commit the run's output" step naturally belongs.
+This closes the loop with US06's automation: the GitHub Actions workflow (`.github/workflows/main.yml`, issues #41/#42) runs the pipeline on a schedule and commits the updated `datasets/kpi_history.json` back to `main`; Power BI Service's own scheduled refresh then picks up that change on its own schedule. Neither side has to trigger the other manually.
 
-Until one of those lands, the manual steps above are how this report gets refreshed.
+The one-time manual upload process this replaced (issue #38's original setup — export to CSV, upload, replace) is retired. `src/utils/powerbi/export_history_csv.py` is no longer needed to keep the report current, but is kept as a small utility for local testing (flattening `kpi_history.json` to CSV without needing to wait for a GitHub Actions run).
 
 ## Dashboards
 
@@ -112,6 +102,14 @@ Separating technical metrics from executive KPIs reflects a common practice in e
 
 This dual-layer reporting model helps ensure that both technical and business stakeholders can access the information relevant to their decision-making process.
 
+    +------------------+
+    | GitHub Actions   |
+    | (daily cron +    |
+    |  on-demand)      |
+    +--------+---------+
+             |
+             | triggers
+             v
                  +------------------+
                  |    SonarCloud    |
                  +---------+--------+
@@ -133,30 +131,28 @@ This dual-layer reporting model helps ensure that both technical and business st
                 |  Dataset Layer     |
                 +---------+----------+
                           |
-          +---------------+---------------+
-          |               |               |
-          v               v               v
-    +-----------+   +-----------+   +-----------+
-    | InfluxDB  |   |  OneDrive |   |  GitHub   |
-    |  (Cloud)  |   |  (Excel)  |   |  (JSON)   |
-    +-----+-----+   +-----+-----+   +-----+-----+
-          |               |               |
-          v               v               v
-      +--------+    +-----------+    +----------+
-      | Grafana|    |  Power BI |    |  Backup  |
-      |(Tech   |    | (Executive|    | /Migrate |
-      |Dashboard)   | Dashboard)|    +----------+
-      +--------+    +-----------+
-          
-          ^
-          |
-    +------------------+
-    | GitHub Actions   |
-    | (cron diario)    |
-    | automatiza todo  |
-    +------------------+
+               +----------+----------+
+               |                     |
+               v                     v
+         +-----------+         +-----------+
+         | InfluxDB  |         |  GitHub   |
+         |  (Cloud)  |         |  (JSON)   |
+         +-----+-----+         +-----+-----+
+               |                     |
+               v               +-----+-----+
+          +---------+          |           |
+          | Grafana |          v           v
+          | (Tech   |    +----------+ +-----------+
+          |Dashboard)|   |  Backup  | |  Power BI |
+          +---------+    | /Migrate | | (Executive|
+                          +----------+ | Dashboard)|
+                                       +-----------+
 
-**Note on the OneDrive box:** the OneDrive upload integration shown above (Microsoft Graph API, OAuth device-code sign-in, retry logic — see `src/utils/onedrive/`) is fully built and working, but is currently a **standalone utility, not called automatically** by the pipeline. Power BI's live data source is instead planned to read directly from this GitHub repo (the `GitHub (JSON)` box already shown), which avoids the extra OneDrive/Azure hop entirely for automation. The OneDrive code is kept available for manual use or future adoption — see `CLAUDE.md`'s "Utilities" section for how to run it.
+GitHub Actions also performs the final commit into the `GitHub (JSON)`
+box (issues #41/#42) — the same workflow both triggers the pipeline
+and pushes its output back to the repo.
+
+**Note on OneDrive:** it's deliberately not in the diagram above — `src/utils/onedrive/` (issue #28) is a fully built, working upload integration, but it's a **standalone utility, not called by the pipeline**. Power BI reads from the `GitHub (JSON)` box directly instead (issue #43), which is why OneDrive isn't part of the live data flow. Kept available for manual use — see `CLAUDE.md`'s "Utilities" section for how to run it.
 
 ## Repository Structure
 

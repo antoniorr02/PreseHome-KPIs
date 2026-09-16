@@ -1,3 +1,11 @@
+    +------------------+
+    | GitHub Actions   |
+    | (daily cron +    |
+    |  on-demand)      |
+    +--------+---------+
+             |
+             | triggers
+             v
                  +------------------+
                  |    SonarCloud    |
                  +---------+--------+
@@ -19,31 +27,32 @@
                 |  Dataset Layer     |
                 +---------+----------+
                           |
-          +---------------+---------------+
-          |               |               |
-          v               v               v
-    +-----------+   +-----------+   +-----------+
-    | InfluxDB  |   |  OneDrive |   |  GitHub   |
-    |  (Cloud)  |   |  (Excel)  |   |  (JSON)   |
-    +-----+-----+   +-----+-----+   +-----+-----+
-          |               |               |
-          v               v               v
-      +--------+    +-----------+    +----------+
-      | Grafana|    |  Power BI |    |  Backup  |
-      |(Tech   |    | (Executive|    | /Migrate |
-      |Dashboard)   | Dashboard)|    +----------+
-      +--------+    +-----------+
-          
-          ^
-          |
-    +------------------+
-    | GitHub Actions   |
-    | (cron diario)    |
-    | automatiza todo  |
-    +------------------+
+               +----------+----------+
+               |                     |
+               v                     v
+         +-----------+         +-----------+
+         | InfluxDB  |         |  GitHub   |
+         |  (Cloud)  |         |  (JSON)   |
+         +-----+-----+         +-----+-----+
+               |                     |
+               v               +-----+-----+
+          +---------+          |           |
+          | Grafana |          v           v
+          | (Tech   |    +----------+ +-----------+
+          |Dashboard)|   |  Backup  | |  Power BI |
+          +---------+    | /Migrate | | (Executive|
+                          +----------+ | Dashboard)|
+                                       +-----------+
 
-**Note on the OneDrive box:** this integration (Microsoft Graph API, OAuth device-code sign-in, retry logic — see `src/utils/onedrive/`) is fully built and working, but is currently a standalone utility, not called automatically by the pipeline. Power BI's live data source is instead planned to read directly from the GitHub repo (the `GitHub (JSON)` box), tracked as part of US06. See `CLAUDE.md`'s "Utilities" section for how to run the OneDrive utility manually.
+GitHub Actions also performs the final commit into the `GitHub (JSON)`
+box (issues #41/#42) — the same workflow both triggers the pipeline
+and pushes its output back to the repo.
 
-**Note on the Grafana and Power BI boxes:** both dashboards are implemented (issues #37, #38). Grafana reads directly from InfluxDB (`dashboards/grafana/code_quality_dashboard.json`, importable as-is). Power BI's report (`dashboards/powerbi/Executive Report - PreseHome.pbix`) was built in Power BI Service's browser editor rather than Desktop (Linux has no Power BI Desktop) from a one-time flattened-CSV upload, so — unlike the live diagram above implies — it currently has no automatic refresh; see README's "Keeping the Power BI Report Up to Date" and `docs/powerbi/dax_measures.md` for the DAX model behind it. Screenshots of both: `docs/screenshots/`.
+**Box notes:**
+- **GitHub Actions** — `.github/workflows/main.yml` runs the pipeline daily (cron) plus on-demand (`workflow_dispatch`), and commits `data/raw/`, `data/processed/`, and `datasets/kpi_history.json` back to `main` (issues #41, #42).
+- **GitHub (JSON)** — the live handoff point. `datasets/kpi_history.json` gets committed here on every scheduled run, and serves two purposes from there: historical backup, and Power BI's live data source.
+- **Power BI** — reads `datasets/kpi_history.json` live from the `GitHub (JSON)` box via Power BI Service's Web connector (GitHub REST API + PAT auth) and refreshes on its own schedule (issue #43). See README's "Keeping the Power BI Report Up to Date" for the exact URL/headers, and `docs/powerbi/dax_measures.md` for the DAX model. `dashboards/powerbi/Executive Report - PreseHome.pbix` was built in Power BI Service's browser editor (Linux has no Power BI Desktop).
+- **Grafana** — reads directly from InfluxDB (`dashboards/grafana/code_quality_dashboard.json`, importable as-is).
+- Screenshots of both dashboards: `docs/screenshots/`.
 
-**Note on the GitHub Actions box:** this is now real, not aspirational (issues #41, #42) — `.github/workflows/main.yml` runs the pipeline daily and commits its output back to the repo. What the diagram doesn't yet show accurately: the cron only reaches `InfluxDB` and `GitHub (JSON)` automatically — `OneDrive` remains an unwired standalone utility, and `Power BI` still requires the manual refresh described above until issue #43 (switch Power BI to read from `GitHub (JSON)` directly) is done.
+**Not in this diagram — OneDrive:** `src/utils/onedrive/` (issue #28) is a fully built, working upload integration, but it's a standalone utility, not called by the pipeline and not part of the live data flow above — Power BI reads from GitHub directly instead (issue #43). Kept available for manual use — see `CLAUDE.md`'s "Utilities" section for how to run it.

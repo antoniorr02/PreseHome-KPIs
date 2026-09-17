@@ -1,2 +1,2 @@
 project,timestamp,raw_bugs,raw_vulnerabilities,raw_code_smells,raw_coverage,norm_bugs,norm_vulnerabilities,norm_code_smells,norm_coverage,weight_bugs,weight_vulnerabilities,weight_code_smells,weight_coverage,kpi_score
-PreseHome,2026-09-16T17:30:51.436995+00:00,28,4,421,0.0,7.199999999999999,9.200000000000001,1.5800000000000003,0.0,0.3,0.3,0.2,0.2,5.236
+PreseHome,2026-09-17T10:52:00.376667+00:00,28,4,421,0.0,7.199999999999999,9.200000000000001,1.5800000000000003,0.0,0.3,0.3,0.2,0.2,5.236

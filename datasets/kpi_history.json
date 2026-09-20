@@ -268,5 +268,23 @@
     "weight_coverage": 0.2,
     "kpi_score": 5.236,
     "stored_at": "2026-09-19T10:12:17.819613+00:00"
+  },
+  {
+    "project": "PreseHome",
+    "timestamp": "2026-09-20T10:31:17.131883+00:00",
+    "raw_bugs": 28,
+    "raw_vulnerabilities": 4,
+    "raw_code_smells": 421,
+    "raw_coverage": 0.0,
+    "norm_bugs": 7.199999999999999,
+    "norm_vulnerabilities": 9.200000000000001,
+    "norm_code_smells": 1.5800000000000003,
+    "norm_coverage": 0.0,
+    "weight_bugs": 0.3,
+    "weight_vulnerabilities": 0.3,
+    "weight_code_smells": 0.2,
+    "weight_coverage": 0.2,
+    "kpi_score": 5.236,
+    "stored_at": "2026-09-20T10:31:17.765345+00:00"
   }
 ]
